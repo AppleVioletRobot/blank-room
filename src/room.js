@@ -30,10 +30,12 @@ async function createLayeredMesh(geometry, materialConfig, options = {}) {
       transparent: true,
       opacity: materialConfig.textureOpacity ?? 1,
       side,
-      depthWrite: false
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1
     });
     const overlay = new THREE.Mesh(geometry.clone(), overlayMaterial);
-    overlay.scale.multiplyScalar(options.overlayScale ?? 1.001);
     group.add(overlay);
   }
 
