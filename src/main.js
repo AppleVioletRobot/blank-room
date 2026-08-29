@@ -69,7 +69,7 @@ async function start() {
 
   const roomBounds = await buildRoom(scene, roomConfig, skinConfig, contentConfig);
   addLighting(scene, skinConfig.lightingFixtures ?? []);
-  addFurniture(scene, contentConfig.furniture ?? [], skinConfig.materials ?? {});
+  await addFurniture(scene, contentConfig.furniture ?? [], skinConfig.materials ?? {});
   const { update } = createControls(camera, roomBounds, roomConfig.player);
 
   enterButton.textContent = 'Enter Room';
