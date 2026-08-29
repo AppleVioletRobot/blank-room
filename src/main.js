@@ -17,17 +17,22 @@ async function start() {
   ]);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(
+    roomConfig.camera.fov,
+    window.innerWidth / window.innerHeight,
+    roomConfig.camera.near,
+    roomConfig.camera.far
+  );
   camera.position.set(...roomConfig.player.start);
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({ antialias: roomConfig.renderer.antialias });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, roomConfig.renderer.maxPixelRatio));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   document.querySelector('#app').prepend(renderer.domElement);
 
-  const roomBounds = buildRoom(scene, roomConfig, skinConfig, contentConfig);
-  const { controls, update } = createControls(camera, renderer.domElement, roomBounds, roomConfig.player.speed);
+  const roomBounds = await buildRoom(scene, roomConfig, skinConfig, contentConfig);
+  const { controls, update } = createControls(camera, renderer.domElement, roomBounds, roomConfig.player);
 
   const overlay = document.querySelector('#overlay');
   const enterButton = document.querySelector('#enter-button');
@@ -43,7 +48,7 @@ async function start() {
 
   const clock = new THREE.Clock();
   renderer.setAnimationLoop(() => {
-    update(Math.min(clock.getDelta(), 0.05));
+    update(Math.min(clock.getDelta(), roomConfig.renderer.maxDelta));
     renderer.render(scene, camera);
   });
 }
