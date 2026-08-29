@@ -1,0 +1,11 @@
+{
+  "dimensions": {
+    "width": 8,
+    "depth": 10,
+    "height": 3.4
+  },
+  "player": {
+    "start": [0, 1.65, 3.2],
+    "speed": 3.2
+  }
+}
