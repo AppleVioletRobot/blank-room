@@ -25,6 +25,11 @@ async function createLayeredMesh(geometry, materialConfig, options = {}) {
 
   if (materialConfig.texture) {
     const texture = await loadTexture(materialConfig.texture);
+    if (materialConfig.textureRepeat) {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(...materialConfig.textureRepeat);
+    }
     const overlayMaterial = new THREE.MeshStandardMaterial({
       map: texture,
       transparent: true,
@@ -42,32 +47,25 @@ async function createLayeredMesh(geometry, materialConfig, options = {}) {
   return group;
 }
 
-async function addRoomSurface(scene, geometry, materialConfig, transform, options = {}) {
-  const mesh = await createLayeredMesh(geometry, materialConfig, options);
-  mesh.position.set(...transform.position);
-  mesh.rotation.set(...transform.rotation);
-  scene.add(mesh);
+function geometryForItem(item) {
+  if (item.type === 'box') return new THREE.BoxGeometry(...item.size);
+  if (item.type === 'plane') return new THREE.PlaneGeometry(...item.size);
+  throw new Error(`Unknown geometry type: ${item.type}`);
 }
 
-function geometryForObject(object) {
-  if (object.type === 'box') return new THREE.BoxGeometry(...object.size);
-  if (object.type === 'plane') return new THREE.PlaneGeometry(...object.size);
-  throw new Error(`Unknown object type: ${object.type}`);
-}
-
-async function addObject(scene, object, materials) {
-  if (!object.enabled) return;
-  const materialConfig = materials[object.material];
-  if (!materialConfig) throw new Error(`Unknown material: ${object.material}`);
+async function addConfiguredItem(scene, item, materials) {
+  if (item.enabled === false) return;
+  const materialConfig = materials[item.material];
+  if (!materialConfig) throw new Error(`Unknown material: ${item.material}`);
 
   const mesh = await createLayeredMesh(
-    geometryForObject(object),
+    geometryForItem(item),
     materialConfig,
-    { side: object.type === 'plane' ? THREE.DoubleSide : THREE.FrontSide }
+    { side: item.doubleSided ? THREE.DoubleSide : THREE.FrontSide }
   );
-  mesh.name = object.id;
-  mesh.position.set(...object.position);
-  mesh.rotation.set(...object.rotation);
+  mesh.name = item.id;
+  mesh.position.set(...item.position);
+  mesh.rotation.set(...item.rotation);
   scene.add(mesh);
 }
 
@@ -90,50 +88,14 @@ export async function buildRoom(scene, roomConfig, skinConfig, contentConfig) {
 
   scene.background = new THREE.Color(skinConfig.background);
 
-  await Promise.all([
-    addRoomSurface(
-      scene,
-      new THREE.PlaneGeometry(width, depth),
-      materials.floor,
-      { position: [0, 0, 0], rotation: [-Math.PI / 2, 0, 0] }
-    ),
-    addRoomSurface(
-      scene,
-      new THREE.PlaneGeometry(width, depth),
-      materials.ceiling,
-      { position: [0, height, 0], rotation: [Math.PI / 2, 0, 0] },
-      { side: THREE.DoubleSide }
-    ),
-    addRoomSurface(
-      scene,
-      new THREE.PlaneGeometry(width, height),
-      materials.walls,
-      { position: [0, height / 2, -depth / 2], rotation: [0, 0, 0] }
-    ),
-    addRoomSurface(
-      scene,
-      new THREE.PlaneGeometry(width, height),
-      materials.walls,
-      { position: [0, height / 2, depth / 2], rotation: [0, Math.PI, 0] }
-    ),
-    addRoomSurface(
-      scene,
-      new THREE.PlaneGeometry(depth, height),
-      materials.walls,
-      { position: [-width / 2, height / 2, 0], rotation: [0, Math.PI / 2, 0] }
-    ),
-    addRoomSurface(
-      scene,
-      new THREE.PlaneGeometry(depth, height),
-      materials.walls,
-      { position: [width / 2, height / 2, 0], rotation: [0, -Math.PI / 2, 0] }
-    )
-  ]);
+  for (const item of roomConfig.architecture ?? []) {
+    await addConfiguredItem(scene, item, materials);
+  }
 
   skinConfig.lighting.forEach((light) => addLight(scene, light));
 
   for (const object of contentConfig.objects) {
-    await addObject(scene, object, materials);
+    await addConfiguredItem(scene, object, materials);
   }
 
   return { width, depth, height };
