@@ -13,7 +13,32 @@ async function loadTexture(path) {
   return texture;
 }
 
-async function createLayeredMesh(geometry, materialConfig, options = {}) {
+function textureRepeatFor(materialConfig, item) {
+  if (materialConfig.textureRepeat) {
+    return materialConfig.textureRepeat;
+  }
+
+  if (
+    materialConfig.texturePhysicalSize &&
+    item.type === 'plane' &&
+    Array.isArray(item.size) &&
+    item.size.length >= 2
+  ) {
+    const [textureWidthMetres, textureHeightMetres] = materialConfig.texturePhysicalSize;
+    const [surfaceWidthMetres, surfaceHeightMetres] = item.size;
+
+    if (textureWidthMetres > 0 && textureHeightMetres > 0) {
+      return [
+        surfaceWidthMetres / textureWidthMetres,
+        surfaceHeightMetres / textureHeightMetres
+      ];
+    }
+  }
+
+  return null;
+}
+
+async function createLayeredMesh(geometry, materialConfig, item, options = {}) {
   const group = new THREE.Group();
   const side = options.side ?? THREE.FrontSide;
 
@@ -25,15 +50,19 @@ async function createLayeredMesh(geometry, materialConfig, options = {}) {
 
   if (materialConfig.texture) {
     const texture = await loadTexture(materialConfig.texture);
-    if (materialConfig.textureRepeat) {
+    const repeat = textureRepeatFor(materialConfig, item);
+
+    if (repeat) {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(...materialConfig.textureRepeat);
+      texture.repeat.set(...repeat);
     }
+
     if (materialConfig.textureRotation) {
       texture.center.set(0.5, 0.5);
       texture.rotation = materialConfig.textureRotation;
     }
+
     const overlayMaterial = new THREE.MeshStandardMaterial({
       map: texture,
       transparent: true,
@@ -65,6 +94,7 @@ async function addConfiguredItem(scene, item, materials) {
   const mesh = await createLayeredMesh(
     geometryForItem(item),
     materialConfig,
+    item,
     { side: item.doubleSided ? THREE.DoubleSide : THREE.FrontSide }
   );
   mesh.name = item.id;
