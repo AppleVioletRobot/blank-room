@@ -128,7 +128,7 @@
     "collisionMargin": 0.35
   },
   "camera": {
-    "fov": 70,
+    "fov": 52,
     "near": 0.1,
     "far": 100
   },
