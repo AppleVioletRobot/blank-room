@@ -1,0 +1,18 @@
+{
+  "background": "#ececec",
+  "surfaces": {
+    "walls": "#f4f4f2",
+    "floor": "#d8d8d4",
+    "ceiling": "#f7f7f5"
+  },
+  "objects": {
+    "plinth": "#e6e6e1",
+    "panel": "#d1d1cb"
+  },
+  "lighting": {
+    "ambientColor": "#ffffff",
+    "ambientIntensity": 1.4,
+    "keyColor": "#ffffff",
+    "keyIntensity": 1.2
+  }
+}
