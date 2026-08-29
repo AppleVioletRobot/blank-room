@@ -22,8 +22,8 @@
       "textureOpacity": 1
     },
     "panel": {
-      "baseColor": "#d1d1cb",
-      "texture": null,
+      "baseColor": "#ffffff",
+      "texture": "images/artwork_01.png",
       "textureOpacity": 1
     }
   },
