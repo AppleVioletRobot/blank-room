@@ -24,7 +24,9 @@ async function start() {
     roomConfig.camera.far
   );
   camera.position.set(...roomConfig.player.start);
-  camera.rotation.y = roomConfig.player.startRotationY ?? 0;
+  if (roomConfig.player.lookAt) {
+    camera.lookAt(...roomConfig.player.lookAt);
+  }
 
   const renderer = new THREE.WebGLRenderer({ antialias: roomConfig.renderer.antialias });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, roomConfig.renderer.maxPixelRatio));
