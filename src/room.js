@@ -121,7 +121,7 @@ function buildWallGridColumns(layout, architecture) {
       }
       columnGroups.push(columnSlots);
     }
-    wallGroups.push({ wallId, columnGroups });
+    wallGroups.push({ wallId, wall, right, columnGroups });
   }
   return wallGroups;
 }
@@ -157,13 +157,27 @@ function selectedWallGridSlots(layout, architecture, requestedCount) {
   }
 
   const slots = [];
-  for (const wall of wallGroups) {
-    const take = selectedCounts.get(wall.wallId) ?? 0;
+  for (const wallGroup of wallGroups) {
+    const take = selectedCounts.get(wallGroup.wallId) ?? 0;
     if (!take) continue;
-    const capacity = wall.columnGroups.length;
+
+    const capacity = wallGroup.columnGroups.length;
     const start = Math.floor((capacity - take) / 2);
-    const end = start + take;
-    slots.push(...wall.columnGroups.slice(start, end).flat());
+    const selectedColumns = wallGroup.columnGroups.slice(start, start + take);
+    const selectedSlots = selectedColumns.flat();
+
+    // Slicing the middle slots is still asymmetric whenever capacity-take is odd.
+    // Re-centre the selected block geometrically on the actual wall centre.
+    const columnCentres = selectedColumns.map((column) => new THREE.Vector3(...column[0].position));
+    const selectedCentre = columnCentres.reduce((sum, point) => sum.add(point), new THREE.Vector3()).multiplyScalar(1 / columnCentres.length);
+    const wallCentre = new THREE.Vector3(...wallGroup.wall.position);
+    const offsetAlongWall = wallCentre.clone().sub(selectedCentre).dot(wallGroup.right);
+    const correction = wallGroup.right.clone().multiplyScalar(offsetAlongWall);
+
+    for (const slot of selectedSlots) {
+      const correctedPosition = new THREE.Vector3(...slot.position).add(correction);
+      slots.push({ ...slot, position: correctedPosition.toArray() });
+    }
   }
   return slots.slice(0, requestedCount);
 }
