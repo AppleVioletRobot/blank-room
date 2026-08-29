@@ -1,0 +1,19 @@
+{
+  "id": "intro-panel",
+  "enabled": true,
+  "size": [1.25, 1.65],
+  "position": [0, 1.7, -4.96],
+  "rotation": [0, 0, 0],
+  "material": "interpretation_panel",
+  "backgroundColor": "#ffffff",
+  "textColor": "#111111",
+  "eyebrow": "Exhibition or section title",
+  "heading": "Main interpretation heading",
+  "subheading": "Optional subheading",
+  "body": "Plain text body copy. Keep it fairly short for an in-room interpretation panel.",
+  "padding": 110,
+  "headingSize": 84,
+  "subheadingSize": 48,
+  "bodySize": 36,
+  "lineHeight": 1.45
+}
