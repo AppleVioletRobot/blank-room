@@ -11,15 +11,15 @@
   },
   "materials": {
     "walls": {
-      "baseColor": "#f6c945",
+      "baseColor": "#f7f7f4",
       "texture": null,
       "textureOpacity": 1
     },
     "floor": {
-      "baseColor": "#e97824",
-      "texture": "images/floor_tile_02.webp",
+      "baseColor": "#ffffff",
+      "texture": "images/floor_wood_01.webp",
       "textureOpacity": 1,
-      "texturePhysicalSize": [1.142857, 0.588235],
+      "textureRepeat": [4, 6],
       "textureRotation": 0
     },
     "floor_tile_02": {
@@ -44,12 +44,27 @@
       "textureRotation": 0
     },
     "ceiling": {
-      "baseColor": "#f3ead7",
+      "baseColor": "#f7f7f4",
       "texture": null,
       "textureOpacity": 1
     },
     "door": {
-      "baseColor": "#f3ead7",
+      "baseColor": "#f2f0e9",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "baseboard": {
+      "baseColor": "#e7e4dc",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "bench": {
+      "baseColor": "#b7a58d",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "gallery_artwork": {
+      "baseColor": "#ffffff",
       "texture": null,
       "textureOpacity": 1
     },
