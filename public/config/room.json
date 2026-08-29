@@ -6,7 +6,9 @@
   },
   "player": {
     "start": [0, 1.65, 3.2],
-    "speed": 3.2,
+    "startRotationY": 0,
+    "speed": 2.4,
+    "turnSpeed": 1.5,
     "collisionMargin": 0.35
   },
   "camera": {
