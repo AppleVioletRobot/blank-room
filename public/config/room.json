@@ -4,6 +4,82 @@
     "depth": 10,
     "height": 3.4
   },
+  "architecture": [
+    {
+      "id": "floor",
+      "type": "plane",
+      "size": [8, 10],
+      "position": [0, 0, 0],
+      "rotation": [-1.5707963268, 0, 0],
+      "material": "floor"
+    },
+    {
+      "id": "ceiling",
+      "type": "plane",
+      "size": [8, 10],
+      "position": [0, 3.4, 0],
+      "rotation": [1.5707963268, 0, 0],
+      "material": "ceiling",
+      "doubleSided": true
+    },
+    {
+      "id": "back-wall",
+      "type": "plane",
+      "size": [8, 3.4],
+      "position": [0, 1.7, -5],
+      "rotation": [0, 0, 0],
+      "material": "walls"
+    },
+    {
+      "id": "left-wall",
+      "type": "plane",
+      "size": [10, 3.4],
+      "position": [-4, 1.7, 0],
+      "rotation": [0, 1.5707963268, 0],
+      "material": "walls"
+    },
+    {
+      "id": "right-wall",
+      "type": "plane",
+      "size": [10, 3.4],
+      "position": [4, 1.7, 0],
+      "rotation": [0, -1.5707963268, 0],
+      "material": "walls"
+    },
+    {
+      "id": "front-wall-left",
+      "type": "plane",
+      "size": [3.3, 3.4],
+      "position": [-2.35, 1.7, 5],
+      "rotation": [0, 3.1415926536, 0],
+      "material": "walls"
+    },
+    {
+      "id": "front-wall-right",
+      "type": "plane",
+      "size": [3.3, 3.4],
+      "position": [2.35, 1.7, 5],
+      "rotation": [0, 3.1415926536, 0],
+      "material": "walls"
+    },
+    {
+      "id": "front-wall-over-door",
+      "type": "plane",
+      "size": [1.4, 1.1],
+      "position": [0, 2.85, 5],
+      "rotation": [0, 3.1415926536, 0],
+      "material": "walls"
+    },
+    {
+      "id": "door-01",
+      "type": "box",
+      "enabled": true,
+      "size": [1.32, 2.28, 0.08],
+      "position": [0, 1.14, 4.94],
+      "rotation": [0, 0, 0],
+      "material": "door"
+    }
+  ],
   "player": {
     "start": [0, 1.65, 3.2],
     "lookAt": [0, 1.65, -5],
