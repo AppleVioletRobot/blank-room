@@ -33,7 +33,7 @@
       "baseColor": "#ffffff",
       "texture": "images/floor_tile_03.webp",
       "textureOpacity": 1,
-      "textureRepeat": [6, 8],
+      "texturePhysicalSize": [0.225, 0.225],
       "textureRotation": 0
     },
     "floor_wood_01": {
