@@ -30,6 +30,10 @@ async function createLayeredMesh(geometry, materialConfig, options = {}) {
       texture.wrapT = THREE.RepeatWrapping;
       texture.repeat.set(...materialConfig.textureRepeat);
     }
+    if (materialConfig.textureRotation) {
+      texture.center.set(0.5, 0.5);
+      texture.rotation = materialConfig.textureRotation;
+    }
     const overlayMaterial = new THREE.MeshStandardMaterial({
       map: texture,
       transparent: true,
