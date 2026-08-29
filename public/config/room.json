@@ -11,7 +11,7 @@
       "size": [8, 10],
       "position": [0, 0, 0],
       "rotation": [-1.5707963268, 0, 0],
-      "material": "floor_tile_03"
+      "material": "floor"
     },
     {
       "id": "ceiling",
@@ -78,6 +78,46 @@
       "position": [0, 1.14, 4.94],
       "rotation": [0, 0, 0],
       "material": "door"
+    },
+    {
+      "id": "baseboard-back",
+      "type": "box",
+      "size": [8, 0.12, 0.06],
+      "position": [0, 0.06, -4.97],
+      "rotation": [0, 0, 0],
+      "material": "baseboard"
+    },
+    {
+      "id": "baseboard-left",
+      "type": "box",
+      "size": [0.06, 0.12, 10],
+      "position": [-3.97, 0.06, 0],
+      "rotation": [0, 0, 0],
+      "material": "baseboard"
+    },
+    {
+      "id": "baseboard-right",
+      "type": "box",
+      "size": [0.06, 0.12, 10],
+      "position": [3.97, 0.06, 0],
+      "rotation": [0, 0, 0],
+      "material": "baseboard"
+    },
+    {
+      "id": "baseboard-front-left",
+      "type": "box",
+      "size": [3.3, 0.12, 0.06],
+      "position": [-2.35, 0.06, 4.97],
+      "rotation": [0, 0, 0],
+      "material": "baseboard"
+    },
+    {
+      "id": "baseboard-front-right",
+      "type": "box",
+      "size": [3.3, 0.12, 0.06],
+      "position": [2.35, 0.06, 4.97],
+      "rotation": [0, 0, 0],
+      "material": "baseboard"
     }
   ],
   "player": {
