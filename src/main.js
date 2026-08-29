@@ -24,6 +24,7 @@ async function start() {
     roomConfig.camera.far
   );
   camera.position.set(...roomConfig.player.start);
+  camera.rotation.y = roomConfig.player.startRotationY ?? 0;
 
   const renderer = new THREE.WebGLRenderer({ antialias: roomConfig.renderer.antialias });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, roomConfig.renderer.maxPixelRatio));
@@ -32,13 +33,11 @@ async function start() {
   document.querySelector('#app').prepend(renderer.domElement);
 
   const roomBounds = await buildRoom(scene, roomConfig, skinConfig, contentConfig);
-  const { controls, update } = createControls(camera, renderer.domElement, roomBounds, roomConfig.player);
+  const { update } = createControls(camera, roomBounds, roomConfig.player);
 
   const overlay = document.querySelector('#overlay');
   const enterButton = document.querySelector('#enter-button');
-  enterButton.addEventListener('click', () => controls.lock());
-  controls.addEventListener('lock', () => overlay.classList.add('hidden'));
-  controls.addEventListener('unlock', () => overlay.classList.remove('hidden'));
+  enterButton.addEventListener('click', () => overlay.classList.add('hidden'));
 
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
