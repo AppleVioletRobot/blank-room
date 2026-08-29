@@ -18,7 +18,6 @@
         "back-wall",
         "left-wall",
         "right-wall",
-        "front-wall-left",
         "front-wall-right"
       ],
       "rows": 2,
@@ -29,8 +28,11 @@
       "verticalCentre": 1.7,
       "normalOffset": 0.02,
       "material": "gallery_artwork",
+      "distribution": "balanced",
+      "itemCount": 44,
+      "completeColumns": true,
       "randomiseOrder": true,
-      "randomiseSelection": false,
+      "randomiseSelection": true,
       "repeatImages": false,
       "images": [
         "images/polaroids/polaroid_001.png",
@@ -85,18 +87,22 @@
     {
       "id": "intro-panel",
       "enabled": true,
-      "size": [1.25, 1.65],
-      "position": [-3.28, 1.72, 4.96],
+      "size": [2.9, 2.7],
+      "position": [-2.35, 1.7, 4.96],
       "rotation": [0, 3.1415926536, 0],
       "material": "interpretation_panel",
       "backgroundColor": "#ffffff",
       "textColor": "#111111",
+      "borderColor": "#111111",
+      "borderWidth": 10,
+      "canvasWidth": 1450,
+      "canvasHeight": 1350,
       "eyebrow": "The Staph Aureus Experience™",
       "heading": "Here, walk around my experience.",
       "body": "A worked example for Blank Room. These fragments are presented without a prescribed order. Move among them, approach them, turn away, return. The arrangement holds the material without resolving it into one route through illness and convalescence.",
-      "padding": 110,
-      "headingSize": 84,
-      "bodySize": 36,
+      "padding": 120,
+      "headingSize": 82,
+      "bodySize": 38,
       "lineHeight": 1.45
     }
   ]
