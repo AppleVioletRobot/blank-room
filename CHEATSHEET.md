@@ -304,7 +304,63 @@ For now, copy an existing similar object and alter it rather than building coord
 
 ---
 
-## 10. Turn an object off without deleting it
+## 10. Make a wall grid / gallery layout
+
+Use `wallLayouts` in `public/config/content.json` when you want Blank Room to arrange many uniform images automatically around named wall segments.
+
+Example:
+
+```json
+{
+  "id": "polaroid-grid",
+  "enabled": true,
+  "walls": [
+    "back-wall",
+    "left-wall",
+    "right-wall",
+    "front-wall-left",
+    "front-wall-right"
+  ],
+  "rows": 2,
+  "itemWidth": 0.95,
+  "aspectRatio": [472, 536],
+  "columnGap": 0.18,
+  "rowGap": 0.18,
+  "verticalCentre": 1.7,
+  "normalOffset": 0.02,
+  "material": "gallery_artwork",
+  "randomiseOrder": true,
+  "randomiseSelection": false,
+  "repeatImages": false,
+  "images": [
+    "images/polaroid_001.png",
+    "images/polaroid_002.png"
+  ]
+}
+```
+
+What the fields mean:
+
+- `walls` — named wall segments from `room.json`; omit the over-door wall unless you actually want images there
+- `rows` — number of rows
+- `itemWidth` — width of each displayed image in metres
+- `aspectRatio` — source-image pixel ratio `[width, height]`; Blank Room calculates display height automatically
+- `itemHeight` — optional explicit height; if present it overrides aspect-ratio calculation
+- `columnGap` / `rowGap` — spacing in metres
+- `verticalCentre` — vertical centre of the whole hanging field in metres
+- `normalOffset` — tiny offset in front of the wall to avoid surface fighting
+- `randomiseOrder` — shuffle the image order on each page load
+- `randomiseSelection` — if there are more images than slots, choose a random subset
+- `repeatImages` — repeat the available image list to fill empty slots; useful for testing, normally `false` for real exhibitions
+- `images` — explicit asset list
+
+Blank Room calculates how many columns fit on each named wall segment from that wall's real width, the image width and the gap. The door is therefore handled simply by using the separate wall segments on either side of it.
+
+For the current 472 × 536 Polaroid worked example, `itemWidth: 0.95` produces an image height of about 1.08 m.
+
+---
+
+## 11. Turn an object off without deleting it
 
 ```json
 "enabled": false
@@ -320,7 +376,7 @@ Useful for comparing exhibition arrangements.
 
 ---
 
-## 11. Change the Enter Room screen
+## 12. Change the Enter Room screen
 
 In `skin.json`:
 
@@ -340,7 +396,7 @@ Use `backgroundOpacity: 1` for a completely opaque threshold with no view of the
 
 ---
 
-## 12. Navigation
+## 13. Navigation
 
 Blank Room's default navigation is deliberately calm:
 
@@ -355,7 +411,7 @@ This is intentional: **the visitor moves; the room holds.**
 
 ---
 
-## 13. After changing files on GitHub
+## 14. After changing files on GitHub
 
 GitHub Pages is deployed by GitHub Actions.
 
@@ -370,7 +426,7 @@ If it is still unchanged after a few minutes, check the GitHub Actions deploymen
 
 ---
 
-## 14. Six-months-later exhibition recipe
+## 15. Six-months-later exhibition recipe
 
 If you are opening this repository after forgetting everything, do this:
 
@@ -379,8 +435,8 @@ If you are opening this repository after forgetting everything, do this:
 3. Upload artwork and texture files to `public/images/`.
 4. Create named materials for paint, flooring and graphics in `skin.json`.
 5. Use `texturePhysicalSize` for materials with meaningful real-world scale.
-6. Add or duplicate artwork/display objects in `content.json`.
-7. Set their sizes and positions in metres.
+6. Add individual objects or a `wallLayouts` grid in `content.json`.
+7. Set their display scale in metres; remember that artwork can use expressive rather than literal scale.
 8. Dress the Enter Room threshold in `skin.json`.
 9. Commit, wait for Pages to deploy, walk through it.
 10. Adjust by eye. A proposal mock-up needs to communicate the spatial idea; it does not need to be a building survey.
