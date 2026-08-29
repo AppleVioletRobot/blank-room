@@ -1,18 +1,43 @@
 {
   "background": "#ececec",
-  "surfaces": {
-    "walls": "#f4f4f2",
-    "floor": "#d8d8d4",
-    "ceiling": "#f7f7f5"
+  "materials": {
+    "walls": {
+      "baseColor": "#f4f4f2",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "floor": {
+      "baseColor": "#d8d8d4",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "ceiling": {
+      "baseColor": "#f7f7f5",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "plinth": {
+      "baseColor": "#e6e6e1",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "panel": {
+      "baseColor": "#d1d1cb",
+      "texture": null,
+      "textureOpacity": 1
+    }
   },
-  "objects": {
-    "plinth": "#e6e6e1",
-    "panel": "#d1d1cb"
-  },
-  "lighting": {
-    "ambientColor": "#ffffff",
-    "ambientIntensity": 1.4,
-    "keyColor": "#ffffff",
-    "keyIntensity": 1.2
-  }
+  "lighting": [
+    {
+      "type": "ambient",
+      "color": "#ffffff",
+      "intensity": 1.4
+    },
+    {
+      "type": "directional",
+      "color": "#ffffff",
+      "intensity": 1.2,
+      "position": [2, 2.9, 1]
+    }
+  ]
 }
