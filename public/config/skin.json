@@ -25,6 +25,11 @@
       "texture": null,
       "textureOpacity": 1
     },
+    "door": {
+      "baseColor": "#f3ead7",
+      "texture": null,
+      "textureOpacity": 1
+    },
     "plinth": {
       "baseColor": "#e6e6e1",
       "texture": null,
