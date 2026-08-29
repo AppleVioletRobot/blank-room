@@ -1,22 +1,40 @@
 {
   "objects": [
     {
-      "id": "central-plinth",
+      "id": "central-bench",
       "type": "box",
       "enabled": true,
-      "size": [1.2, 0.9, 1.2],
-      "position": [0, 0.45, -0.6],
+      "size": [2.4, 0.45, 0.65],
+      "position": [0, 0.225, -0.4],
       "rotation": [0, 0, 0],
-      "material": "plinth"
-    },
+      "material": "bench"
+    }
+  ],
+  "wallLayouts": [
     {
-      "id": "artwork-01",
-      "type": "plane",
+      "id": "worked-example-grid",
       "enabled": true,
-      "size": [2.2, 1.4],
-      "position": [0, 1.75, -4.98],
-      "rotation": [0, 0, 0],
-      "material": "panel"
+      "walls": [
+        "back-wall",
+        "left-wall",
+        "right-wall",
+        "front-wall-left",
+        "front-wall-right"
+      ],
+      "rows": 2,
+      "itemWidth": 0.95,
+      "aspectRatio": [472, 536],
+      "columnGap": 0.18,
+      "rowGap": 0.18,
+      "verticalCentre": 1.7,
+      "normalOffset": 0.02,
+      "material": "gallery_artwork",
+      "randomiseOrder": true,
+      "randomiseSelection": false,
+      "repeatImages": true,
+      "images": [
+        "images/artwork_01.png"
+      ]
     }
   ]
 }
