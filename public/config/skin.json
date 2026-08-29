@@ -2,17 +2,17 @@
   "background": "#ececec",
   "materials": {
     "walls": {
-      "baseColor": "#f4f4f2",
+      "baseColor": "#f6c945",
       "texture": null,
       "textureOpacity": 1
     },
     "floor": {
-      "baseColor": "#d8d8d4",
+      "baseColor": "#e97824",
       "texture": null,
       "textureOpacity": 1
     },
     "ceiling": {
-      "baseColor": "#f7f7f5",
+      "baseColor": "#f3ead7",
       "texture": null,
       "textureOpacity": 1
     },
