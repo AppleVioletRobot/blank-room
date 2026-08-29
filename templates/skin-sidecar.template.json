@@ -1,0 +1,23 @@
+{
+  "id": "replace_with_material_id",
+  "name": "Human-readable material name",
+  "category": "floor",
+  "asset": "replace_with_filename.webp",
+  "source": {
+    "description": "Where this texture came from / product name / catalogue reference",
+    "url": null,
+    "notes": null
+  },
+  "physicalScale": {
+    "mode": "physicalSize",
+    "widthMetres": 1.0,
+    "heightOrDepthMetres": 1.0,
+    "howKnown": "manufacturer dimensions / counted tiles / visually calibrated"
+  },
+  "blankRoomMaterial": {
+    "baseColor": "#ffffff",
+    "textureOpacity": 1,
+    "textureRotation": 0
+  },
+  "usageNotes": "For a floor, physical size is [width, depth]. For a wall/furniture surface, interpret the second dimension as height where appropriate. Copy the asset into public/images/ and translate this metadata into public/config/skin.json for the project."
+}
