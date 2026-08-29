@@ -1,31 +1,37 @@
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-
-export function createControls(camera, domElement, roomBounds, playerConfig) {
-  const controls = new PointerLockControls(camera, domElement);
+export function createControls(camera, roomBounds, playerConfig) {
   const keys = new Set();
   const speed = playerConfig.speed;
+  const turnSpeed = playerConfig.turnSpeed;
   const margin = playerConfig.collisionMargin;
 
-  window.addEventListener('keydown', (event) => keys.add(event.code));
+  window.addEventListener('keydown', (event) => {
+    if ([
+      'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+      'KeyW', 'KeyA', 'KeyS', 'KeyD'
+    ].includes(event.code)) {
+      event.preventDefault();
+      keys.add(event.code);
+    }
+  });
+
   window.addEventListener('keyup', (event) => keys.delete(event.code));
 
   function update(delta) {
-    if (!controls.isLocked) return;
-
     let forward = 0;
-    let right = 0;
+    let turn = 0;
 
     if (keys.has('KeyW') || keys.has('ArrowUp')) forward += 1;
     if (keys.has('KeyS') || keys.has('ArrowDown')) forward -= 1;
-    if (keys.has('KeyD') || keys.has('ArrowRight')) right += 1;
-    if (keys.has('KeyA') || keys.has('ArrowLeft')) right -= 1;
+    if (keys.has('KeyA') || keys.has('ArrowLeft')) turn += 1;
+    if (keys.has('KeyD') || keys.has('ArrowRight')) turn -= 1;
 
-    const length = Math.hypot(forward, right) || 1;
-    forward /= length;
-    right /= length;
+    camera.rotation.y += turn * turnSpeed * delta;
 
-    controls.moveForward(forward * speed * delta);
-    controls.moveRight(right * speed * delta);
+    if (forward !== 0) {
+      const distance = forward * speed * delta;
+      camera.position.x -= Math.sin(camera.rotation.y) * distance;
+      camera.position.z -= Math.cos(camera.rotation.y) * distance;
+    }
 
     camera.position.x = Math.max(
       -roomBounds.width / 2 + margin,
@@ -37,5 +43,5 @@ export function createControls(camera, domElement, roomBounds, playerConfig) {
     );
   }
 
-  return { controls, update };
+  return { update };
 }
