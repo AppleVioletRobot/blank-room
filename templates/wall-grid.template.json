@@ -1,0 +1,26 @@
+{
+  "id": "replace_with_layout_id",
+  "enabled": true,
+  "walls": [
+    "back-wall",
+    "left-wall",
+    "right-wall",
+    "front-wall-left",
+    "front-wall-right"
+  ],
+  "rows": 2,
+  "itemWidth": 0.95,
+  "aspectRatio": [472, 536],
+  "columnGap": 0.18,
+  "rowGap": 0.18,
+  "verticalCentre": 1.7,
+  "normalOffset": 0.02,
+  "material": "gallery_artwork",
+  "randomiseOrder": true,
+  "randomiseSelection": false,
+  "repeatImages": false,
+  "images": [
+    "images/example_001.png",
+    "images/example_002.png"
+  ]
+}
