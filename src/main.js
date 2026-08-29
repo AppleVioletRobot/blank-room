@@ -27,24 +27,22 @@ function applyUiConfig(skinConfig) {
   if (!entry) return;
 
   const root = document.documentElement.style;
-  if (entry.backgroundColor) {
-    root.setProperty('--entry-bg-rgb', hexToRgbString(entry.backgroundColor));
-  }
-  if (entry.backgroundOpacity != null) {
-    root.setProperty('--entry-bg-opacity', entry.backgroundOpacity);
-  }
-  if (entry.cardBackgroundColor) {
-    root.setProperty('--entry-card-bg', entry.cardBackgroundColor);
-  }
-  if (entry.textColor) {
-    root.setProperty('--entry-text', entry.textColor);
-  }
-  if (entry.borderColor) {
-    root.setProperty('--entry-border', entry.borderColor);
-  }
+  if (entry.backgroundColor) root.setProperty('--entry-bg-rgb', hexToRgbString(entry.backgroundColor));
+  if (entry.backgroundOpacity != null) root.setProperty('--entry-bg-opacity', entry.backgroundOpacity);
+  if (entry.cardBackgroundColor) root.setProperty('--entry-card-bg', entry.cardBackgroundColor);
+  if (entry.textColor) root.setProperty('--entry-text', entry.textColor);
+  if (entry.borderColor) root.setProperty('--entry-border', entry.borderColor);
 }
 
 async function start() {
+  const overlay = document.querySelector('#overlay');
+  const enterButton = document.querySelector('#enter-button');
+
+  // Make loading explicit. Previously the button looked usable while all room
+  // assets were still downloading, but its click handler did not exist yet.
+  enterButton.disabled = true;
+  enterButton.textContent = 'Loading room…';
+
   const [roomConfig, skinConfig, contentConfig] = await Promise.all([
     loadJson('./config/room.json'),
     loadJson('./config/skin.json'),
@@ -61,9 +59,7 @@ async function start() {
     roomConfig.camera.far
   );
   camera.position.set(...roomConfig.player.start);
-  if (roomConfig.player.lookAt) {
-    camera.lookAt(...roomConfig.player.lookAt);
-  }
+  if (roomConfig.player.lookAt) camera.lookAt(...roomConfig.player.lookAt);
 
   const renderer = new THREE.WebGLRenderer({ antialias: roomConfig.renderer.antialias });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, roomConfig.renderer.maxPixelRatio));
@@ -74,8 +70,8 @@ async function start() {
   const roomBounds = await buildRoom(scene, roomConfig, skinConfig, contentConfig);
   const { update } = createControls(camera, roomBounds, roomConfig.player);
 
-  const overlay = document.querySelector('#overlay');
-  const enterButton = document.querySelector('#enter-button');
+  enterButton.textContent = 'Enter Room';
+  enterButton.disabled = false;
   enterButton.addEventListener('click', () => overlay.classList.add('hidden'));
 
   window.addEventListener('resize', () => {
@@ -93,5 +89,5 @@ async function start() {
 
 start().catch((error) => {
   console.error(error);
-  document.querySelector('.overlay-card').innerHTML = `<h1>Blank Room could not start</h1><p>${error.message}</p>`;
+  document.querySelector('.overlay-card').innerHTML = `<h1>Blank Room could not start</h1><p>${error?.message ?? String(error)}</p>`;
 });
