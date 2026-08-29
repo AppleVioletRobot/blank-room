@@ -28,5 +28,28 @@
   "lighting": [
     {"type":"ambient","color":"#ffffff","intensity":1.4},
     {"type":"directional","color":"#ffffff","intensity":1.2,"position":[2,2.9,1]}
+  ],
+  "lightingFixtures": [
+    {
+      "id": "gallery-downlights",
+      "type": "recessedGrid",
+      "enabled": true,
+      "rows": 2,
+      "columns": 5,
+      "xSpan": 4.2,
+      "zSpan": 7.2,
+      "y": 3.385,
+      "radius": 0.075,
+      "trimWidth": 0.018,
+      "trimColor": "#dedbd2",
+      "lampColor": "#fff7e8",
+      "lightColor": "#fff3d6",
+      "intensity": 18,
+      "distance": 4.8,
+      "angle": 0.72,
+      "penumbra": 0.7,
+      "decay": 2,
+      "targetY": 0.9
+    }
   ]
 }
