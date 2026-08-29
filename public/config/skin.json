@@ -53,6 +53,16 @@
       "texture": null,
       "textureOpacity": 1
     },
+    "door_frame": {
+      "baseColor": "#dedbd2",
+      "texture": null,
+      "textureOpacity": 1
+    },
+    "door_handle": {
+      "baseColor": "#6f6f6a",
+      "texture": null,
+      "textureOpacity": 1
+    },
     "baseboard": {
       "baseColor": "#e7e4dc",
       "texture": null,
