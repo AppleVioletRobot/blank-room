@@ -36,5 +36,24 @@
         "images/artwork_01.png"
       ]
     }
+  ],
+  "interpretationPanels": [
+    {
+      "id": "intro-panel",
+      "enabled": true,
+      "size": [1.25, 1.65],
+      "position": [-3.28, 1.72, 4.96],
+      "rotation": [0, 3.1415926536, 0],
+      "material": "interpretation_panel",
+      "backgroundColor": "#ffffff",
+      "textColor": "#111111",
+      "eyebrow": "The Staph Aureus Experience™",
+      "heading": "Here, walk around my experience.",
+      "body": "A worked example for Blank Room. These fragments are presented without a prescribed order. Move among them, approach them, turn away, return. The arrangement holds the material without resolving it into one route through illness and convalescence.",
+      "padding": 110,
+      "headingSize": 84,
+      "bodySize": 36,
+      "lineHeight": 1.45
+    }
   ]
 }
