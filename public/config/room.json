@@ -6,6 +6,17 @@
   },
   "player": {
     "start": [0, 1.65, 3.2],
-    "speed": 3.2
+    "speed": 3.2,
+    "collisionMargin": 0.35
+  },
+  "camera": {
+    "fov": 70,
+    "near": 0.1,
+    "far": 100
+  },
+  "renderer": {
+    "antialias": true,
+    "maxPixelRatio": 2,
+    "maxDelta": 0.05
   }
 }
