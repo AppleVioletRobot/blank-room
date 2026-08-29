@@ -2,43 +2,184 @@
 
 A deliberately minimal browser-based 3D room for experimenting with **enterable graphics**.
 
-The project separates three concerns:
+The governing rule is simple:
 
-- **Geometry** — the room and the objects that physically exist in it.
-- **Skin** — colours, materials, textures and lighting.
-- **Content / behaviour** — images, labels and interactions placed in the room.
+> **If a maker might reasonably want to change it, it should not require editing JavaScript.**
 
-The aim is to make one reusable spatial container that can be reskinned and repopulated without rewriting the room engine. A future artwork such as a projected mural, testimony space, exhibition or interactive comic should be able to use the same underlying room.
+Blank Room separates the engine from the things a maker changes.
 
-## v0.1
+## The four layers
 
-The first version is intentionally plain:
+1. **Engine** — JavaScript capabilities: render a room, create primitive objects, apply materials, load textures, move the camera, handle collision.
+2. **Architecture** — `room.json`: room size, player position, movement, camera and renderer settings.
+3. **Skin** — `skin.json`: base colours, optional texture overlays, texture opacity and lighting.
+4. **Content** — `content.json`: which objects exist, their type, size, position, rotation and material assignment.
 
-- rectangular room
+The aim is that radically different rooms can be made by editing JSON and replacing assets in `public/`, without rewriting the engine.
+
+## Current capabilities
+
+- rectangular enterable room
 - first-person movement
 - mouse look using pointer lock
-- simple collision with the room boundaries
-- one configurable plinth
-- one configurable wall panel
-- neutral lighting
-- room, skin and content settings stored separately as JSON
+- simple collision with room boundaries
+- configurable camera and movement
+- configurable lighting
+- reusable `box` and `plane` objects
+- base paint colours for walls, floor, ceiling and objects
+- optional transparent texture layer over a base colour
+- generic content object list rather than hard-coded plinth/panel logic
 
-No artwork is baked into the engine.
+## Human-facing asset rules
+
+### Image formats
+
+Use:
+
+- **PNG** when transparency matters or when the base colour should show through
+- **JPG or WebP** for fully opaque artwork or textures
+
+A useful default size for repeating surface textures is **2048 × 2048 px**.
+
+For standalone artwork, use the artwork's real aspect ratio. The current wall artwork slot is landscape and is intended for an image around **1600 × 1000 px**.
+
+### Base paint + skin
+
+Every configurable material has this form:
+
+```json
+{
+  "baseColor": "#f4f4f2",
+  "texture": null,
+  "textureOpacity": 1
+}
+```
+
+`baseColor` behaves like painting a gallery wall. `texture` is an optional image placed as a second visual layer. Transparent parts of a PNG reveal the painted base below. `textureOpacity` can fade the whole overlay.
+
+Example:
+
+```json
+{
+  "baseColor": "#c96f42",
+  "texture": "textures/walls/painted-wall.png",
+  "textureOpacity": 0.7
+}
+```
+
+## Configuration
+
+Blank Room reads three files from `public/config/`.
+
+### `room.json`
+
+Defines the physical container and viewing behaviour:
+
+- `dimensions.width`
+- `dimensions.depth`
+- `dimensions.height`
+- `player.start`
+- `player.speed`
+- `player.collisionMargin`
+- camera field of view / clipping distances
+- renderer quality settings
+
+### `skin.json`
+
+Defines visual treatment. Materials are named so content objects can refer to them.
+
+Current materials:
+
+- `walls`
+- `floor`
+- `ceiling`
+- `plinth`
+- `panel`
+
+These names are not special to the engine: more material entries can be added as new objects need them.
+
+Lighting is also configured here as a list of lights.
+
+### `content.json`
+
+Defines objects placed in the room.
+
+Example:
+
+```json
+{
+  "id": "artwork-01",
+  "type": "plane",
+  "enabled": true,
+  "size": [2.2, 1.4],
+  "position": [0, 1.75, -4.98],
+  "rotation": [0, 0, 0],
+  "material": "panel"
+}
+```
+
+The engine currently understands two primitive object types:
+
+- `plane` — useful for artwork, murals and flat graphic surfaces
+- `box` — useful for plinths, simple tables, blocks and early furniture prototypes
+
+More reusable furniture types can be added to the engine later while keeping each furniture instance configurable.
+
+## First artwork experiment
+
+The existing wall rectangle has the object id `artwork-01` and uses the material `panel`.
+
+To make it display an image, upload an asset such as:
+
+```text
+public/images/artwork-01.png
+```
+
+Then change the `panel` material in `skin.json` to:
+
+```json
+{
+  "baseColor": "#ffffff",
+  "texture": "images/artwork-01.png",
+  "textureOpacity": 1
+}
+```
+
+No JavaScript change is required.
+
+## Project structure
+
+```text
+blank-room/
+├── .github/workflows/deploy-pages.yml
+├── public/
+│   ├── config/
+│   │   ├── room.json
+│   │   ├── skin.json
+│   │   └── content.json
+│   ├── images/
+│   ├── textures/
+│   └── models/
+├── src/
+│   ├── controls.js
+│   ├── main.js
+│   ├── room.js
+│   └── styles.css
+├── index.html
+├── package.json
+└── README.md
+```
+
+Git does not store empty directories, so `images/`, `textures/` and `models/` appear once they contain assets.
 
 ## Run locally
-
-You need a recent version of Node.js.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Vite will print a local URL. Open it in a browser, click **Enter room**, then use:
-
-- `W A S D` or arrow keys to move
-- mouse to look around
-- `Esc` to release the mouse
+Open the local URL, click **Enter room**, then use the arrow keys or `W/A/S/D` to move, the mouse to look around, and `Esc` to release the mouse.
 
 ## Build
 
@@ -47,56 +188,23 @@ npm run build
 npm run preview
 ```
 
-## Configuration
+GitHub Pages is deployed with GitHub Actions.
 
-The room reads three files from `public/config/`:
+## Modularity test
 
-```text
-public/config/room.json
-public/config/skin.json
-public/config/content.json
-```
+For every new feature, ask:
 
-### `room.json`
+> **Could a non-coder make a meaningfully different room by changing configuration and replacing assets?**
 
-Defines the physical container: dimensions, player start position and fixed architectural settings.
+If the answer is no because an artistic choice is buried in JavaScript, that feature needs refactoring.
 
-### `skin.json`
-
-Defines visual treatment: background, wall/floor/ceiling colours, lighting and object colours. This is where later room skins can introduce textures.
-
-### `content.json`
-
-Defines things placed into the room, currently a plinth and a wall panel. Later this layer can hold images, testimony fragments, projections, doors, audio or other interactions.
-
-## Project structure
-
-```text
-blank-room/
-├── .github/workflows/deploy-pages.yml
-├── public/
-│   └── config/
-│       ├── room.json
-│       ├── skin.json
-│       └── content.json
-├── src/
-│   ├── controls.js
-│   ├── main.js
-│   ├── room.js
-│   └── styles.css
-├── .gitignore
-├── index.html
-├── package.json
-└── README.md
-```
+Some things properly remain in JavaScript: the algorithms for rendering, movement, loading textures and interpreting object types. Those are capabilities, not room-specific artistic choices.
 
 ## Concept
 
 Blank Room is not intended to become a general-purpose game engine. It is a small research scaffold for asking what happens when graphic material becomes spatial and enterable.
 
-The useful constraint is: **can a new experience be made by changing configuration and assets rather than changing the underlying room code?**
-
-That makes the blank room itself a test object. Once the neutral room works, the next experiment is to skin it while keeping its architecture intact.
+The blank room itself is a test object: can architecture stay stable while surfaces, objects, images and behaviours change around it?
 
 ## Licence
 
