@@ -1,0 +1,13 @@
+{
+  "plinth": {
+    "enabled": true,
+    "size": [1.2, 0.9, 1.2],
+    "position": [0, 0.45, -0.6]
+  },
+  "panel": {
+    "enabled": true,
+    "size": [2.2, 1.4],
+    "position": [0, 1.75, -4.98],
+    "rotation": [0, 0, 0]
+  }
+}
