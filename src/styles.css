@@ -9,6 +9,14 @@ body,
   font-family: Arial, Helvetica, sans-serif;
 }
 
+:root {
+  --entry-bg-rgb: 245, 245, 245;
+  --entry-bg-opacity: 1;
+  --entry-card-bg: #ffffff;
+  --entry-text: #111111;
+  --entry-border: #c9c9c9;
+}
+
 canvas {
   display: block;
 }
@@ -19,7 +27,7 @@ canvas {
   display: grid;
   place-items: center;
   z-index: 10;
-  background: rgba(245, 245, 245, 0.92);
+  background: rgba(var(--entry-bg-rgb), var(--entry-bg-opacity));
 }
 
 .overlay.hidden {
@@ -29,8 +37,9 @@ canvas {
 .overlay-card {
   width: min(420px, calc(100vw - 48px));
   padding: 32px;
-  border: 1px solid #c9c9c9;
-  background: #ffffff;
+  border: 1px solid var(--entry-border);
+  background: var(--entry-card-bg);
+  color: var(--entry-text);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
