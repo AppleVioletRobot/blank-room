@@ -9,12 +9,49 @@ async function loadJson(path) {
   return response.json();
 }
 
+function hexToRgbString(hex) {
+  const value = hex.replace('#', '');
+  const normalized = value.length === 3
+    ? value.split('').map((char) => char + char).join('')
+    : value;
+  const number = Number.parseInt(normalized, 16);
+  return [
+    (number >> 16) & 255,
+    (number >> 8) & 255,
+    number & 255
+  ].join(', ');
+}
+
+function applyUiConfig(skinConfig) {
+  const entry = skinConfig.ui?.entryScreen;
+  if (!entry) return;
+
+  const root = document.documentElement.style;
+  if (entry.backgroundColor) {
+    root.setProperty('--entry-bg-rgb', hexToRgbString(entry.backgroundColor));
+  }
+  if (entry.backgroundOpacity != null) {
+    root.setProperty('--entry-bg-opacity', entry.backgroundOpacity);
+  }
+  if (entry.cardBackgroundColor) {
+    root.setProperty('--entry-card-bg', entry.cardBackgroundColor);
+  }
+  if (entry.textColor) {
+    root.setProperty('--entry-text', entry.textColor);
+  }
+  if (entry.borderColor) {
+    root.setProperty('--entry-border', entry.borderColor);
+  }
+}
+
 async function start() {
   const [roomConfig, skinConfig, contentConfig] = await Promise.all([
     loadJson('./config/room.json'),
     loadJson('./config/skin.json'),
     loadJson('./config/content.json')
   ]);
+
+  applyUiConfig(skinConfig);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
