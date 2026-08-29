@@ -2,193 +2,150 @@
 
 A deliberately minimal browser-based 3D room for experimenting with **enterable graphics**.
 
-The governing rule is simple:
-
 > **If a maker might reasonably want to change it, it should not require editing JavaScript.**
 
-Blank Room separates the engine from the things a maker changes.
+Blank Room separates engine, architecture, skin and content so radically different rooms can be created by editing configuration and replacing assets.
 
-## The four layers
+## Current structure
 
-1. **Engine** — JavaScript capabilities: render a room, create primitive objects, apply materials, load textures, move the camera, handle collision.
-2. **Architecture** — `room.json`: room size, player position, movement, camera and renderer settings.
-3. **Skin** — `skin.json`: base colours, optional texture overlays, texture opacity and lighting.
-4. **Content** — `content.json`: which objects exist, their type, size, position, rotation and material assignment.
+- **Engine** — `src/`: rendering, movement, texture loading and configuration interpretation.
+- **Architecture** — `public/config/room.json`: room dimensions, camera/player settings and explicit architectural objects such as walls, floor, ceiling and doors.
+- **Skin** — `public/config/skin.json`: colours, materials, textures, texture scale/rotation, lighting and entry-screen appearance.
+- **Content** — `public/config/content.json`: artwork and other placed objects.
 
-The aim is that radically different rooms can be made by editing JSON and replacing assets in `public/`, without rewriting the engine.
+Blank Room uses **metres** as its world unit.
 
-## Current capabilities
+## Navigation
 
-- rectangular enterable room
-- first-person movement
-- mouse look using pointer lock
-- simple collision with room boundaries
-- configurable camera and movement
-- configurable lighting
-- reusable `box` and `plane` objects
-- base paint colours for walls, floor, ceiling and objects
-- optional transparent texture layer over a base colour
-- generic content object list rather than hard-coded plinth/panel logic
+The default navigation is intentionally calm:
 
-## Human-facing asset rules
+- `↑` / `W` — move forward
+- `↓` / `S` — move backward
+- `←` / `A` — turn left
+- `→` / `D` — turn right
 
-### Image formats
+The mouse does not control the camera.
 
-Use:
+## Materials
 
-- **PNG** when transparency matters or when the base colour should show through
-- **JPG or WebP** for fully opaque artwork or textures
-
-A useful default size for repeating surface textures is **2048 × 2048 px**.
-
-For standalone artwork, use the artwork's real aspect ratio. The current wall artwork slot is landscape and is intended for an image around **1600 × 1000 px**.
-
-### Base paint + skin
-
-Every configurable material has this form:
+A material can have a base colour and an optional texture layer:
 
 ```json
 {
-  "baseColor": "#f4f4f2",
-  "texture": null,
+  "baseColor": "#f6c945",
+  "texture": "images/example.webp",
   "textureOpacity": 1
 }
 ```
 
-`baseColor` behaves like painting a gallery wall. `texture` is an optional image placed as a second visual layer. Transparent parts of a PNG reveal the painted base below. `textureOpacity` can fade the whole overlay.
+Transparent textures can reveal the base colour underneath.
 
-Example:
+## Texture scaling
 
-```json
-{
-  "baseColor": "#c96f42",
-  "texture": "textures/walls/painted-wall.png",
-  "textureOpacity": 0.7
-}
-```
+Blank Room supports two texture-scaling modes.
 
-## Configuration
+### 1. Physical-size mode — preferred
 
-Blank Room reads three files from `public/config/`.
-
-### `room.json`
-
-Defines the physical container and viewing behaviour:
-
-- `dimensions.width`
-- `dimensions.depth`
-- `dimensions.height`
-- `player.start`
-- `player.speed`
-- `player.collisionMargin`
-- camera field of view / clipping distances
-- renderer quality settings
-
-### `skin.json`
-
-Defines visual treatment. Materials are named so content objects can refer to them.
-
-Current materials:
-
-- `walls`
-- `floor`
-- `ceiling`
-- `plinth`
-- `panel`
-
-These names are not special to the engine: more material entries can be added as new objects need them.
-
-Lighting is also configured here as a list of lights.
-
-### `content.json`
-
-Defines objects placed in the room.
-
-Example:
+Use this when you know, or can reasonably estimate, how much real-world surface one copy of the image represents.
 
 ```json
 {
-  "id": "artwork-01",
-  "type": "plane",
-  "enabled": true,
-  "size": [2.2, 1.4],
-  "position": [0, 1.75, -4.98],
-  "rotation": [0, 0, 0],
-  "material": "panel"
+  "texture": "images/floor_tile_02.webp",
+  "texturePhysicalSize": [1.142857, 0.588235]
 }
 ```
 
-The engine currently understands two primitive object types:
+The two numbers are **metres represented by one copy of the image**: `[width, height]`.
 
-- `plane` — useful for artwork, murals and flat graphic surfaces
-- `box` — useful for plinths, simple tables, blocks and early furniture prototypes
-
-More reusable furniture types can be added to the engine later while keeping each furniture instance configurable.
-
-## First artwork experiment
-
-The existing wall rectangle has the object id `artwork-01` and uses the material `panel`.
-
-To make it display an image, upload an asset such as:
+Blank Room calculates the repeat automatically from the size of the plane:
 
 ```text
-public/images/artwork-01.png
+repeat X = surface width in metres / texture width in metres
+repeat Y = surface height in metres / texture height in metres
 ```
 
-Then change the `panel` material in `skin.json` to:
+For the current 8 m × 10 m floor, a texture representing roughly 1.142857 m × 0.588235 m produces approximately:
+
+```text
+8 / 1.142857  ≈ 7 repeats
+10 / 0.588235 ≈ 17 repeats
+```
+
+If the room later changes size, the flooring keeps the same apparent physical scale automatically.
+
+### 2. Manual-repeat mode — fallback/override
+
+Use this when the image has no meaningful real-world scale or when an artistic treatment is more important than physical accuracy:
 
 ```json
 {
-  "baseColor": "#ffffff",
-  "texture": "images/artwork-01.png",
-  "textureOpacity": 1
+  "texture": "images/floor_tile_03.webp",
+  "textureRepeat": [6, 8]
 }
 ```
 
-No JavaScript change is required.
+If both `textureRepeat` and `texturePhysicalSize` are present, **manual `textureRepeat` wins**.
+
+### Rotation
+
+Directional textures can be rotated:
+
+```json
+{
+  "textureRotation": 1.5708
+}
+```
+
+Rotation is in radians. `1.5708` is approximately 90°.
+
+## How to calibrate a new flooring image
+
+There are three useful cases:
+
+1. **The catalogue gives dimensions.** Use the real dimensions represented by the image as `texturePhysicalSize`.
+2. **The image contains a known number of tiles/planks.** Multiply the product dimensions by the number visible in the image.
+3. **There is no reliable scale.** Adjust by eye once, note the repeat that looks right, then either keep `textureRepeat` or convert that observation into a physical-size estimate.
+
+To convert an observed repeat into physical size:
+
+```text
+texture physical width  = surface width / observed repeat X
+texture physical height = surface height / observed repeat Y
+```
+
+This is how the current `floor_tile_02.webp` was calibrated from an observed 7 × 17 repeat on an 8 m × 10 m floor.
+
+## Asset formats
+
+- **PNG** — best when transparency matters.
+- **JPG/WebP** — good for opaque artwork and surface textures.
+- WebP is especially useful for browser delivery because it is compact.
+
+## Architecture
+
+Architecture is explicit in `room.json`: walls, wall segments, floor, ceiling and door are configurable objects rather than a permanently sealed box.
+
+A doorway is an opening in architecture; a door is a separate object that can occupy that opening.
 
 ## Project structure
 
 ```text
 blank-room/
-├── .github/workflows/deploy-pages.yml
+├── PRINCIPLES.md
 ├── public/
 │   ├── config/
 │   │   ├── room.json
 │   │   ├── skin.json
 │   │   └── content.json
-│   ├── images/
-│   ├── textures/
-│   └── models/
+│   └── images/
 ├── src/
 │   ├── controls.js
 │   ├── main.js
 │   ├── room.js
 │   └── styles.css
 ├── index.html
-├── package.json
 └── README.md
 ```
-
-Git does not store empty directories, so `images/`, `textures/` and `models/` appear once they contain assets.
-
-## Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-Open the local URL, click **Enter room**, then use the arrow keys or `W/A/S/D` to move, the mouse to look around, and `Esc` to release the mouse.
-
-## Build
-
-```bash
-npm run build
-npm run preview
-```
-
-GitHub Pages is deployed with GitHub Actions.
 
 ## Modularity test
 
@@ -196,16 +153,10 @@ For every new feature, ask:
 
 > **Could a non-coder make a meaningfully different room by changing configuration and replacing assets?**
 
-If the answer is no because an artistic choice is buried in JavaScript, that feature needs refactoring.
-
-Some things properly remain in JavaScript: the algorithms for rendering, movement, loading textures and interpreting object types. Those are capabilities, not room-specific artistic choices.
+If not because an artistic choice is buried in JavaScript, that feature probably needs refactoring.
 
 ## Concept
 
-Blank Room is not intended to become a general-purpose game engine. It is a small research scaffold for asking what happens when graphic material becomes spatial and enterable.
+Blank Room is not intended to become a general-purpose game engine. It is a small spatial publishing and research scaffold for asking what happens when graphic material becomes enterable.
 
-The blank room itself is a test object: can architecture stay stable while surfaces, objects, images and behaviours change around it?
-
-## Licence
-
-This project is currently an experimental Apple Violet Robot research project. No licence has yet been assigned.
+See [`PRINCIPLES.md`](PRINCIPLES.md) for the evolving design principles.
