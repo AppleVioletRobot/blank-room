@@ -10,7 +10,7 @@
     }
   },
   "materials": {
-    "walls": {"baseColor":"#f7f7f4","texture":null,"textureOpacity":1},
+    "walls": {"baseColor":"#913142","texture":null,"textureOpacity":1},
     "floor": {"baseColor":"#ffffff","texture":"images/floor_wood_01.webp","textureOpacity":1,"textureRepeat":[4,6],"textureRotation":0},
     "floor_tile_02": {"baseColor":"#ffffff","texture":"images/floor_tile_02.webp","textureOpacity":1,"texturePhysicalSize":[1.142857,0.588235],"textureRotation":0},
     "floor_tile_03": {"baseColor":"#ffffff","texture":"images/floor_tile_03.webp","textureOpacity":1,"texturePhysicalSize":[0.225,0.225],"textureRotation":0},
