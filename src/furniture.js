@@ -1,8 +1,40 @@
 import * as THREE from 'three';
 
-function materialFor(materials, key, fallback = '#8a6a4a') {
+const textureLoader = new THREE.TextureLoader();
+
+function assetUrl(path) {
+  return new URL(path, document.baseURI).href;
+}
+
+async function materialFor(materials, key, fallback = '#8a6a4a') {
   const config = materials[key] ?? { baseColor: fallback };
-  return new THREE.MeshStandardMaterial({ color: config.baseColor ?? fallback });
+  const options = {
+    color: config.baseColor ?? fallback,
+    transparent: config.transparent === true,
+    opacity: config.opacity ?? 1
+  };
+
+  if (config.texture) {
+    const texture = await textureLoader.loadAsync(assetUrl(config.texture));
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    if (config.textureRepeat) {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(...config.textureRepeat);
+    }
+
+    if (config.textureRotation) {
+      texture.center.set(0.5, 0.5);
+      texture.rotation = config.textureRotation;
+    }
+
+    options.map = texture;
+    options.transparent = true;
+    options.opacity = config.textureOpacity ?? options.opacity;
+  }
+
+  return new THREE.MeshStandardMaterial(options);
 }
 
 function addBox(group, size, position, material) {
@@ -11,7 +43,7 @@ function addBox(group, size, position, material) {
   group.add(mesh);
 }
 
-function addDiningTable(scene, config, materials) {
+async function addDiningTable(scene, config, materials) {
   if (config.enabled === false) return;
 
   const width = config.width ?? 2.4;
@@ -20,8 +52,10 @@ function addDiningTable(scene, config, materials) {
   const topThickness = config.topThickness ?? 0.07;
   const legSize = config.legSize ?? 0.08;
   const legInset = config.legInset ?? 0.12;
-  const topMaterial = materialFor(materials, config.topMaterial ?? config.material);
-  const legMaterial = materialFor(materials, config.legMaterial ?? config.material);
+  const [topMaterial, legMaterial] = await Promise.all([
+    materialFor(materials, config.topMaterial ?? config.material),
+    materialFor(materials, config.legMaterial ?? config.material)
+  ]);
   const group = new THREE.Group();
 
   addBox(group, [width, topThickness, depth], [0, height - topThickness / 2, 0], topMaterial);
@@ -40,7 +74,7 @@ function addDiningTable(scene, config, materials) {
   scene.add(group);
 }
 
-function addWallTable(scene, config, materials) {
+async function addWallTable(scene, config, materials) {
   if (config.enabled === false) return;
 
   const width = config.width ?? 2.4;
@@ -49,8 +83,10 @@ function addWallTable(scene, config, materials) {
   const topThickness = config.topThickness ?? 0.07;
   const legSize = config.legSize ?? 0.08;
   const legInset = config.legInset ?? 0.12;
-  const topMaterial = materialFor(materials, config.topMaterial ?? config.material);
-  const legMaterial = materialFor(materials, config.legMaterial ?? config.material);
+  const [topMaterial, legMaterial] = await Promise.all([
+    materialFor(materials, config.topMaterial ?? config.material),
+    materialFor(materials, config.legMaterial ?? config.material)
+  ]);
   const group = new THREE.Group();
 
   addBox(group, [width, topThickness, depth], [0, height - topThickness / 2, 0], topMaterial);
@@ -69,10 +105,10 @@ function addWallTable(scene, config, materials) {
   scene.add(group);
 }
 
-export function addFurniture(scene, furniture = [], materials = {}) {
+export async function addFurniture(scene, furniture = [], materials = {}) {
   for (const config of furniture) {
-    if (config.type === 'dining-table') addDiningTable(scene, config, materials);
-    else if (config.type === 'wall-table') addWallTable(scene, config, materials);
+    if (config.type === 'dining-table') await addDiningTable(scene, config, materials);
+    else if (config.type === 'wall-table') await addWallTable(scene, config, materials);
     else console.warn(`Unknown furniture type: ${config.type}`);
   }
 }
