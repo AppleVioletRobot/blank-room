@@ -14,9 +14,7 @@ async function loadTexture(path) {
 }
 
 function textureRepeatFor(materialConfig, item) {
-  if (materialConfig.textureRepeat) {
-    return materialConfig.textureRepeat;
-  }
+  if (materialConfig.textureRepeat) return materialConfig.textureRepeat;
 
   if (
     materialConfig.texturePhysicalSize &&
@@ -73,8 +71,7 @@ async function createLayeredMesh(geometry, materialConfig, item, options = {}) {
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1
     });
-    const overlay = new THREE.Mesh(geometry.clone(), overlayMaterial);
-    group.add(overlay);
+    group.add(new THREE.Mesh(geometry.clone(), overlayMaterial));
   }
 
   return group;
@@ -115,7 +112,6 @@ function shuffledCopy(items) {
 function wallGridItemSize(layout) {
   const width = layout.itemWidth;
   if (layout.itemHeight) return [width, layout.itemHeight];
-
   const [pixelWidth, pixelHeight] = layout.aspectRatio ?? [1, 1];
   return [width, width * (pixelHeight / pixelWidth)];
 }
@@ -155,12 +151,7 @@ function buildWallGridSlots(layout, architecture) {
           .add(up.clone().multiplyScalar(verticalOffset))
           .add(normal.clone().multiplyScalar(normalOffset));
 
-        slots.push({
-          wallId,
-          size: [itemWidth, itemHeight],
-          position: position.toArray(),
-          rotation: [...wall.rotation]
-        });
+        slots.push({ wallId, size: [itemWidth, itemHeight], position: position.toArray(), rotation: [...wall.rotation] });
       }
     }
   }
@@ -185,13 +176,7 @@ async function addWallGrid(scene, layout, architecture, materials) {
 
     const slot = slots[index];
     const baseMaterial = materials[layout.material] ?? { baseColor: '#ffffff', textureOpacity: 1 };
-    const materialConfig = {
-      ...baseMaterial,
-      texture: image,
-      textureRepeat: null,
-      texturePhysicalSize: null,
-      textureRotation: 0
-    };
+    const materialConfig = { ...baseMaterial, texture: image, textureRepeat: null, texturePhysicalSize: null, textureRotation: 0 };
     const item = {
       id: `${layout.id}-${index + 1}`,
       type: 'plane',
@@ -201,17 +186,102 @@ async function addWallGrid(scene, layout, architecture, materials) {
       material: layout.material
     };
 
-    const mesh = await createLayeredMesh(
-      geometryForItem(item),
-      materialConfig,
-      item,
-      { side: THREE.FrontSide }
-    );
+    const mesh = await createLayeredMesh(geometryForItem(item), materialConfig, item, { side: THREE.FrontSide });
     mesh.name = item.id;
     mesh.position.set(...item.position);
     mesh.rotation.set(...item.rotation);
     scene.add(mesh);
   }
+}
+
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function interpretationTexture(panel) {
+  const canvas = document.createElement('canvas');
+  canvas.width = panel.canvasWidth ?? 1600;
+  canvas.height = panel.canvasHeight ?? 1200;
+  const ctx = canvas.getContext('2d');
+  const background = panel.backgroundColor ?? '#ffffff';
+  const textColor = panel.textColor ?? '#111111';
+  const padding = panel.padding ?? 120;
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = textColor;
+  ctx.textBaseline = 'top';
+
+  let y = padding;
+  const contentWidth = canvas.width - padding * 2;
+
+  if (panel.eyebrow) {
+    ctx.font = `${panel.eyebrowSize ?? 38}px Arial, Helvetica, sans-serif`;
+    ctx.fillText(panel.eyebrow.toUpperCase(), padding, y);
+    y += (panel.eyebrowSize ?? 38) * 1.8;
+  }
+
+  ctx.font = `700 ${panel.headingSize ?? 88}px Arial, Helvetica, sans-serif`;
+  for (const line of wrapText(ctx, panel.heading ?? '', contentWidth)) {
+    ctx.fillText(line, padding, y);
+    y += (panel.headingSize ?? 88) * 1.05;
+  }
+
+  if (panel.subheading) {
+    y += 24;
+    ctx.font = `italic ${panel.subheadingSize ?? 48}px Arial, Helvetica, sans-serif`;
+    for (const line of wrapText(ctx, panel.subheading, contentWidth)) {
+      ctx.fillText(line, padding, y);
+      y += (panel.subheadingSize ?? 48) * 1.25;
+    }
+  }
+
+  if (panel.body) {
+    y += 48;
+    ctx.font = `${panel.bodySize ?? 38}px Arial, Helvetica, sans-serif`;
+    for (const line of wrapText(ctx, panel.body, contentWidth)) {
+      ctx.fillText(line, padding, y);
+      y += (panel.bodySize ?? 38) * (panel.lineHeight ?? 1.45);
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+async function addInterpretationPanel(scene, panel, materials) {
+  if (panel.enabled === false) return;
+  const geometry = new THREE.PlaneGeometry(...panel.size);
+  const base = materials[panel.material] ?? { baseColor: panel.backgroundColor ?? '#ffffff' };
+  const group = new THREE.Group();
+  group.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: base.baseColor ?? '#ffffff' })));
+
+  const textMaterial = new THREE.MeshBasicMaterial({
+    map: interpretationTexture(panel),
+    transparent: false,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -1
+  });
+  group.add(new THREE.Mesh(geometry.clone(), textMaterial));
+  group.name = panel.id;
+  group.position.set(...panel.position);
+  group.rotation.set(...panel.rotation);
+  scene.add(group);
 }
 
 function addLight(scene, lightConfig) {
@@ -234,19 +304,11 @@ export async function buildRoom(scene, roomConfig, skinConfig, contentConfig) {
 
   scene.background = new THREE.Color(skinConfig.background);
 
-  for (const item of architecture) {
-    await addConfiguredItem(scene, item, materials);
-  }
-
+  for (const item of architecture) await addConfiguredItem(scene, item, materials);
   skinConfig.lighting.forEach((light) => addLight(scene, light));
-
-  for (const object of contentConfig.objects ?? []) {
-    await addConfiguredItem(scene, object, materials);
-  }
-
-  for (const layout of contentConfig.wallLayouts ?? []) {
-    await addWallGrid(scene, layout, architecture, materials);
-  }
+  for (const object of contentConfig.objects ?? []) await addConfiguredItem(scene, object, materials);
+  for (const layout of contentConfig.wallLayouts ?? []) await addWallGrid(scene, layout, architecture, materials);
+  for (const panel of contentConfig.interpretationPanels ?? []) await addInterpretationPanel(scene, panel, materials);
 
   return { width, depth, height };
 }
