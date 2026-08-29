@@ -26,7 +26,12 @@ function textureRepeatFor(materialConfig, item) {
 async function createLayeredMesh(geometry, materialConfig, item, options = {}) {
   const group = new THREE.Group();
   const side = options.side ?? THREE.FrontSide;
-  group.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: materialConfig.baseColor, side })));
+  const transparentBacking = materialConfig.transparentBacking === true;
+
+  if (!transparentBacking) {
+    group.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: materialConfig.baseColor, side })));
+  }
+
   if (materialConfig.texture) {
     const texture = await loadTexture(materialConfig.texture);
     const repeat = textureRepeatFor(materialConfig, item);
@@ -44,7 +49,8 @@ async function createLayeredMesh(geometry, materialConfig, item, options = {}) {
       transparent: true,
       opacity: materialConfig.textureOpacity ?? 1,
       side,
-      depthWrite: false,
+      depthWrite: !transparentBacking,
+      alphaTest: transparentBacking ? 0.001 : 0,
       polygonOffset: true,
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1
@@ -165,9 +171,6 @@ function selectedWallGridSlots(layout, architecture, requestedCount) {
     const start = Math.floor((capacity - take) / 2);
     const selectedColumns = wallGroup.columnGroups.slice(start, start + take);
     const selectedSlots = selectedColumns.flat();
-
-    // Slicing the middle slots is still asymmetric whenever capacity-take is odd.
-    // Re-centre the selected block geometrically on the actual wall centre.
     const columnCentres = selectedColumns.map((column) => new THREE.Vector3(...column[0].position));
     const selectedCentre = columnCentres.reduce((sum, point) => sum.add(point), new THREE.Vector3()).multiplyScalar(1 / columnCentres.length);
     const wallCentre = new THREE.Vector3(...wallGroup.wall.position);
