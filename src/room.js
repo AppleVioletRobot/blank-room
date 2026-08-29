@@ -116,7 +116,7 @@ function wallGridItemSize(layout) {
   return [width, width * (pixelHeight / pixelWidth)];
 }
 
-function buildWallGridSlots(layout, architecture) {
+function buildWallGridColumns(layout, architecture) {
   const [itemWidth, itemHeight] = wallGridItemSize(layout);
   const columnGap = layout.columnGap ?? 0.18;
   const rowGap = layout.rowGap ?? 0.18;
@@ -124,7 +124,7 @@ function buildWallGridSlots(layout, architecture) {
   const verticalCentre = layout.verticalCentre ?? 1.7;
   const normalOffset = layout.normalOffset ?? 0.02;
   const wallById = new Map(architecture.map((item) => [item.id, item]));
-  const slots = [];
+  const wallGroups = [];
 
   for (const wallId of layout.walls ?? []) {
     const wall = wallById.get(wallId);
@@ -139,41 +139,87 @@ function buildWallGridSlots(layout, architecture) {
     const wallPosition = new THREE.Vector3(...wall.position);
     const totalRowsHeight = rows * itemHeight + (rows - 1) * rowGap;
     const firstRowCentre = verticalCentre - totalRowsHeight / 2 + itemHeight / 2;
+    const columnGroups = [];
 
-    for (let row = 0; row < rows; row += 1) {
-      const rowCentre = firstRowCentre + row * (itemHeight + rowGap);
-      const verticalOffset = rowCentre - wall.position[1];
+    for (let column = 0; column < columns; column += 1) {
+      const columnSlots = [];
+      const horizontalOffset = (column - (columns - 1) / 2) * (itemWidth + columnGap);
 
-      for (let column = 0; column < columns; column += 1) {
-        const horizontalOffset = (column - (columns - 1) / 2) * (itemWidth + columnGap);
+      for (let row = 0; row < rows; row += 1) {
+        const rowCentre = firstRowCentre + row * (itemHeight + rowGap);
+        const verticalOffset = rowCentre - wall.position[1];
         const position = wallPosition.clone()
           .add(right.clone().multiplyScalar(horizontalOffset))
           .add(up.clone().multiplyScalar(verticalOffset))
           .add(normal.clone().multiplyScalar(normalOffset));
 
-        slots.push({ wallId, size: [itemWidth, itemHeight], position: position.toArray(), rotation: [...wall.rotation] });
+        columnSlots.push({
+          wallId,
+          size: [itemWidth, itemHeight],
+          position: position.toArray(),
+          rotation: [...wall.rotation]
+        });
       }
+
+      columnGroups.push(columnSlots);
     }
+
+    wallGroups.push({ wallId, columnGroups });
   }
 
+  return wallGroups;
+}
+
+function orderedWallGridSlots(layout, architecture) {
+  const wallGroups = buildWallGridColumns(layout, architecture);
+
+  if (layout.distribution !== 'balanced') {
+    return wallGroups.flatMap((wall) => wall.columnGroups.flat());
+  }
+
+  const slots = [];
+  const maxColumns = Math.max(0, ...wallGroups.map((wall) => wall.columnGroups.length));
+  for (let columnIndex = 0; columnIndex < maxColumns; columnIndex += 1) {
+    for (const wall of wallGroups) {
+      const column = wall.columnGroups[columnIndex];
+      if (column) slots.push(...column);
+    }
+  }
   return slots;
 }
 
 async function addWallGrid(scene, layout, architecture, materials) {
   if (layout.enabled === false) return;
 
-  const images = layout.randomiseOrder === false ? [...(layout.images ?? [])] : shuffledCopy(layout.images ?? []);
-  const slots = buildWallGridSlots(layout, architecture);
-  if (images.length === 0 || slots.length === 0) return;
+  const sourceImages = [...(layout.images ?? [])];
+  const slots = orderedWallGridSlots(layout, architecture);
+  if (sourceImages.length === 0 || slots.length === 0) return;
 
-  let chosenImages = images;
-  if (layout.randomiseSelection) chosenImages = shuffledCopy(images).slice(0, slots.length);
+  const rows = layout.rows ?? 1;
+  let requestedCount = layout.itemCount ?? Math.min(sourceImages.length, slots.length);
+  requestedCount = Math.min(requestedCount, sourceImages.length, slots.length);
+  if (layout.completeColumns && rows > 1) {
+    requestedCount = Math.floor(requestedCount / rows) * rows;
+  }
 
-  for (let index = 0; index < slots.length; index += 1) {
-    let image = chosenImages[index];
-    if (!image && layout.repeatImages) image = chosenImages[index % chosenImages.length];
-    if (!image) break;
+  let chosenImages = layout.randomiseSelection
+    ? shuffledCopy(sourceImages).slice(0, requestedCount)
+    : sourceImages.slice(0, requestedCount);
 
+  if (layout.randomiseOrder) chosenImages = shuffledCopy(chosenImages);
+
+  if (layout.repeatImages && chosenImages.length < slots.length) {
+    const repeated = [];
+    const repeatCount = layout.itemCount ?? slots.length;
+    for (let index = 0; index < repeatCount; index += 1) {
+      repeated.push(chosenImages[index % chosenImages.length]);
+    }
+    chosenImages = repeated;
+  }
+
+  const displayCount = Math.min(chosenImages.length, slots.length);
+  for (let index = 0; index < displayCount; index += 1) {
+    const image = chosenImages[index];
     const slot = slots[index];
     const baseMaterial = materials[layout.material] ?? { baseColor: '#ffffff', textureOpacity: 1 };
     const materialConfig = { ...baseMaterial, texture: image, textureRepeat: null, texturePhysicalSize: null, textureRotation: 0 };
@@ -221,6 +267,14 @@ function interpretationTexture(panel) {
   const padding = panel.padding ?? 120;
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (panel.borderWidth) {
+    ctx.strokeStyle = panel.borderColor ?? textColor;
+    ctx.lineWidth = panel.borderWidth;
+    const inset = panel.borderWidth / 2;
+    ctx.strokeRect(inset, inset, canvas.width - panel.borderWidth, canvas.height - panel.borderWidth);
+  }
+
   ctx.fillStyle = textColor;
   ctx.textBaseline = 'top';
 
