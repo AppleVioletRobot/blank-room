@@ -21,6 +21,8 @@
     "door_handle": {"baseColor":"#6f6f6a","texture":null,"textureOpacity":1},
     "baseboard": {"baseColor":"#e7e4dc","texture":null,"textureOpacity":1},
     "bench": {"baseColor":"#b7a58d","texture":null,"textureOpacity":1},
+    "table_top": {"baseColor":"#7f5f43","texture":null,"textureOpacity":1},
+    "table_legs": {"baseColor":"#4f4035","texture":null,"textureOpacity":1},
     "gallery_artwork": {"baseColor":"#ffffff","texture":null,"textureOpacity":1,"transparentBacking":true},
     "plinth": {"baseColor":"#e6e6e1","texture":null,"textureOpacity":1},
     "panel": {"baseColor":"#ffffff","texture":"images/artwork_01.png","textureOpacity":1}
