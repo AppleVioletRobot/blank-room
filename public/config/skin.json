@@ -1,5 +1,14 @@
 {
   "background": "#ececec",
+  "ui": {
+    "entryScreen": {
+      "backgroundColor": "#f5f5f5",
+      "backgroundOpacity": 1,
+      "cardBackgroundColor": "#ffffff",
+      "textColor": "#111111",
+      "borderColor": "#c9c9c9"
+    }
+  },
   "materials": {
     "walls": {
       "baseColor": "#f6c945",
