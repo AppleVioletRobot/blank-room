@@ -1,9 +1,10 @@
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
-export function createControls(camera, domElement, roomBounds, speed = 3.2) {
+export function createControls(camera, domElement, roomBounds, playerConfig) {
   const controls = new PointerLockControls(camera, domElement);
   const keys = new Set();
-  const margin = 0.35;
+  const speed = playerConfig.speed;
+  const margin = playerConfig.collisionMargin;
 
   window.addEventListener('keydown', (event) => keys.add(event.code));
   window.addEventListener('keyup', (event) => keys.delete(event.code));
@@ -26,8 +27,14 @@ export function createControls(camera, domElement, roomBounds, speed = 3.2) {
     controls.moveForward(forward * speed * delta);
     controls.moveRight(right * speed * delta);
 
-    camera.position.x = Math.max(-roomBounds.width / 2 + margin, Math.min(roomBounds.width / 2 - margin, camera.position.x));
-    camera.position.z = Math.max(-roomBounds.depth / 2 + margin, Math.min(roomBounds.depth / 2 - margin, camera.position.z));
+    camera.position.x = Math.max(
+      -roomBounds.width / 2 + margin,
+      Math.min(roomBounds.width / 2 - margin, camera.position.x)
+    );
+    camera.position.z = Math.max(
+      -roomBounds.depth / 2 + margin,
+      Math.min(roomBounds.depth / 2 - margin, camera.position.z)
+    );
   }
 
   return { controls, update };
