@@ -4,6 +4,7 @@ import { buildRoom } from './room.js';
 import { addLighting } from './lighting.js';
 import { addFurniture } from './furniture.js';
 import { createControls } from './controls.js';
+import { addTraversalPlanes, addTextSigns } from './traversal.js';
 
 async function loadJson(path) {
   const response = await fetch(path);
@@ -68,6 +69,8 @@ async function start() {
   document.querySelector('#app').prepend(renderer.domElement);
 
   const roomBounds = await buildRoom(scene, roomConfig, skinConfig, contentConfig);
+  roomBounds.planeColliders = await addTraversalPlanes(scene, roomConfig, skinConfig.materials ?? {});
+  addTextSigns(scene, contentConfig);
   addLighting(scene, skinConfig.lightingFixtures ?? []);
   await addFurniture(scene, contentConfig.furniture ?? [], skinConfig.materials ?? {});
   const { update } = createControls(camera, roomBounds, roomConfig.player);
