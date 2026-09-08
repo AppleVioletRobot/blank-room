@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="340" viewBox="0 0 800 340">
+  <title>Blank Room artwork template — MIDDLE aperture</title>
+  <desc>Scale 100 SVG units = 1 metre. Plane 8m x 3.4m. Aperture 2.2m x 2.55m from x 2.9m to 5.1m. Eye line 1.65m.</desc>
+  <g id="ARTWORK" inkscape:groupmode="layer" inkscape:label="ARTWORK" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"/>
+  <g id="GUIDES" inkscape:groupmode="layer" inkscape:label="GUIDES — hide before export" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" font-family="Arial, Helvetica, sans-serif">
+    <rect x="0" y="0" width="800" height="340" fill="none" stroke="#111" stroke-width="3"/>
+    <path d="M290 340 V85 H510 V340 Z" fill="#ddd" stroke="#555" stroke-width="2"/>
+    <line x1="0" y1="175" x2="800" y2="175" stroke="#1b67a5" stroke-width="2" stroke-dasharray="10 8"/>
+    <text x="790" y="168" text-anchor="end" font-size="14" fill="#1b67a5">eye line 1.65 m</text>
+    <path d="M30 30 H770 V310 H540 V55 H260 V310 H30 Z" fill="none" stroke="#b03a2e" stroke-width="2" stroke-dasharray="8 7"/>
+    <line x1="290" y1="326" x2="510" y2="326" stroke="#555"/><text x="400" y="320" text-anchor="middle" font-size="13">2.20 m aperture</text>
+    <text x="400" y="22" text-anchor="middle" font-size="16" font-weight="700">MIDDLE APERTURE — 8.00 m × 3.40 m</text>
+    <text x="400" y="44" text-anchor="middle" font-size="12">100 units = 1 m · aperture height 2.55 m · header 0.85 m · advisory safe inset 0.30 m</text>
+    <text x="400" y="205" text-anchor="middle" font-size="16" fill="#555" transform="rotate(-90 400 205)">NO SURFACE — APERTURE</text>
+  </g>
+</svg>
